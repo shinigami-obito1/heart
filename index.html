@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Love Heart</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #000; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { max-width: 100%; max-height: 100vh; }
+  button {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: transparent; color: #ff6699; border: 1px solid #ff6699;
+    border-radius: 999px; padding: 8px 20px; font: 14px system-ui, sans-serif; cursor: pointer;
+  }
+  button:hover, button:focus-visible { background: #ff6699; color: #000; outline: none; }
+</style>
+</head>
+<body>
+<canvas id="c" width="800" height="600"></canvas>
+<button id="again">Replay</button>
+
+<script>
+const cv = document.getElementById("c");
+const ctx = cv.getContext("2d");
+const W = cv.width, H = cv.height;
+
+const PHRASES = [
+  "I love you", "Te amo", "Ich liebe dich", "Seni seviyorum", "Je t'aime",
+  "Jag älskar dig", "Kocham cię", "Cinta kamu", "사랑해", "أحبك",
+  "Я тебя люблю", "ते तुम से प्यार करता हूँ"
+];
+const COLORS = ["#ff3366", "#ff1a40", "#ff4d88", "#ff6699"];
+const COUNT = 600;          // عدد الكلمات
+const SCALE = 17;           // حجم القلب
+const NAME = "Salma❤️";  // الكلمة اللي فالوسط
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+// نفس المعادلة ديال Python
+function heartX(k) { return 16 * Math.sin(k) ** 3; }
+function heartY(k) {
+  return 13 * Math.cos(k) - 5 * Math.cos(2 * k) - 2 * Math.cos(3 * k) - Math.cos(4 * k);
+}
+
+let token = 0;
+function draw() {
+  const me = ++token;                  // باش Replay يوقف الرسم القديم
+  ctx.clearRect(0, 0, W, H);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  let i = 0;
+  (function step() {
+    if (me !== token) return;
+    for (let n = 0; n < 6 && i < COUNT; n++, i++) {
+      const k = rand(0, 2 * Math.PI);
+      // turtle: الأصل فالوسط و y كيطلع لفوق، canvas: y كينزل لتحت
+      const x = W / 2 + heartX(k) * SCALE;
+      const y = H / 2 - heartY(k) * SCALE;
+      ctx.font = `bold ${Math.round(rand(5, 8.99))}px Arial, sans-serif`;
+      ctx.fillStyle = pick(COLORS);
+      ctx.fillText(pick(PHRASES), x, y);
+    }
+    if (i < COUNT) {
+      requestAnimationFrame(step);
+    } else {
+      ctx.font = "bold 40px Arial, sans-serif";
+      ctx.fillStyle = "#f80808";
+      ctx.fillText(NAME, W / 2, H / 2 + 10);   // y=-10 فـ turtle
+    }
+  })();
+}
+
+document.getElementById("again").addEventListener("click", draw);
+draw();
+</script>
+</body>
+</html>
